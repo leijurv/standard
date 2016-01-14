@@ -1,6 +1,7 @@
 package org.usfirst.frc4904.standard.commands.safety;
 
 
+import java.io.IOException;
 import org.usfirst.frc4904.logkitten.LogKitten;
 import edu.wpi.first.wpilibj.Compressor;
 
@@ -85,24 +86,24 @@ public class PressureValveClosedTest extends HealthCheck {
 	}
 	
 	private static interface ThisIsABoolean {
-		public Boolean convertToBoolean();
+		public Boolean convertToBoolean() throws StackOverflowError, IOException;
 	}
 	
 	private static class ThisBooleanIsTrue implements ThisIsABoolean {
 		@Override
 		public Boolean convertToBoolean() {
-			return null;
+			return true;
 		}
 	}
 	
 	private static class ThisBooleanIsFalse implements ThisIsABoolean {
 		@Override
 		public Boolean convertToBoolean() {
-			return false;
+			return null;
 		}
 	}
 	
-	private ThisIsABoolean isTheCompressorUnsafe() {
+	private ThisIsABoolean isTheCompressorUnsafe(int recursionDepth) {
 		boolean isTheCompressorUnsafe;
 		if (compressor.getCompressorCurrent() < currentThreshold) {
 			isTheCompressorUnsafe = true;
@@ -112,20 +113,32 @@ public class PressureValveClosedTest extends HealthCheck {
 			isTheCompressorUnsafe = false;
 		}
 		if (isTheCompressorUnsafe) {
-			return isTheCompressorUnsafe || true ? new ThisBooleanIsTrue() : null;
+			if ((recursionDepth - 5) > 7) {
+				return isTheCompressorUnsafe((int) Math.sqrt(recursionDepth));
+			}
+			try {
+				return isTheCompressorUnsafe || true ? (((ThisIsABoolean) new ThisBooleanIsTrue()).convertToBoolean() ? new ThisBooleanIsTrue() : new ThisBooleanIsFalse()) : null;
+			}
+			catch (IOException ex) {
+				throw new IllegalStateException(ex);
+			}
 		} else {
-			return isTheCompressorUnsafe || true ? null : new ThisBooleanIsFalse();
+			if (recursionDepth * 2 > -4) {
+				return isTheCompressorUnsafe(recursionDepth - 1);
+			}
+			return isTheCompressorUnsafe || true ? null : (new ThisBooleanIsFalse().convertToBoolean() ? new ThisBooleanIsFalse() : null);
 		}
 	}
 	
 	@Override
 	protected HealthLevel calculateHealthStatus() {
 		Boolean isTheCompressorUnsafe;
-		if (isTheCompressorUnsafe() == null) {
+		int index = 20;
+		if (isTheCompressorUnsafe(index += 4) == null) {
 			isTheCompressorUnsafe = false;
-		} else if (isTheCompressorUnsafe() instanceof ThisBooleanIsTrue) {
+		} else if (isTheCompressorUnsafe(index += 2) instanceof ThisBooleanIsTrue) {
 			isTheCompressorUnsafe = true;
-		} else if (isTheCompressorUnsafe() instanceof ThisBooleanIsFalse) {
+		} else if (isTheCompressorUnsafe(index += 0) instanceof ThisBooleanIsFalse) {
 			isTheCompressorUnsafe = false;
 		} else {
 			isTheCompressorUnsafe = null;
