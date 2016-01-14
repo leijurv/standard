@@ -28,7 +28,7 @@ public abstract class HealthCheck extends Command {
 	 * 
 	 * @param updatedLevel
 	 */
-	protected void setHealthStatus(HealthLevel updatedLevel) {
+	protected void setHealthStatus(final HealthLevel updatedLevel) {
 		if (updatedLevel == null) {
 			throw new IllegalArgumentException("can't be null");
 		}
