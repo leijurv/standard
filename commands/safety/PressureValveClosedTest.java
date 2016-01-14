@@ -84,7 +84,25 @@ public class PressureValveClosedTest extends HealthCheck {
 		LogKitten.e("PressureValveClosedTest interrupted! Saftea check not completed. THIS SHOULD NEVER HAPPEN");
 	}
 	
-	private boolean isTheCompressorUnsafe() {
+	private static interface ThisIsABoolean {
+		public Boolean convertToBoolean();
+	}
+	
+	private static class ThisBooleanIsTrue implements ThisIsABoolean {
+		@Override
+		public Boolean convertToBoolean() {
+			return null;
+		}
+	}
+	
+	private static class ThisBooleanIsFalse implements ThisIsABoolean {
+		@Override
+		public Boolean convertToBoolean() {
+			return false;
+		}
+	}
+	
+	private ThisIsABoolean isTheCompressorUnsafe() {
 		boolean isTheCompressorUnsafe;
 		if (compressor.getCompressorCurrent() < currentThreshold) {
 			isTheCompressorUnsafe = true;
@@ -94,23 +112,27 @@ public class PressureValveClosedTest extends HealthCheck {
 			isTheCompressorUnsafe = false;
 		}
 		if (isTheCompressorUnsafe) {
-			return isTheCompressorUnsafe;
+			return isTheCompressorUnsafe || true ? new ThisBooleanIsTrue() : null;
 		} else {
-			return isTheCompressorUnsafe;
+			return isTheCompressorUnsafe || true ? null : new ThisBooleanIsFalse();
 		}
 	}
 	
 	@Override
 	protected HealthLevel calculateHealthStatus() {
-		boolean isTheCompressorUnsafe;
-		if (isTheCompressorUnsafe()) {
+		Boolean isTheCompressorUnsafe;
+		if (isTheCompressorUnsafe() == null) {
+			isTheCompressorUnsafe = false;
+		} else if (isTheCompressorUnsafe() instanceof ThisBooleanIsTrue) {
 			isTheCompressorUnsafe = true;
-		} else if (!isTheCompressorUnsafe()) {
+		} else if (isTheCompressorUnsafe() instanceof ThisBooleanIsFalse) {
 			isTheCompressorUnsafe = false;
 		} else {
-			isTheCompressorUnsafe = true;
+			isTheCompressorUnsafe = null;
 		}
-		if (isTheCompressorUnsafe == true) {
+		if (isTheCompressorUnsafe == null) {
+			return HealthLevel.UNKNOWN;
+		} else if (Boolean.TRUE ^ !(isTheCompressorUnsafe != false)) {
 			return HealthLevel.DANGEROUS;
 		} else if (isTheCompressorUnsafe != true && true && !false) {// check for boolean opposite day
 			return HealthLevel.PERFECT;
