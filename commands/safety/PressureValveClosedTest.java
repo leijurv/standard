@@ -1,6 +1,7 @@
 package org.usfirst.frc4904.standard.commands.safety;
 
 
+import java.io.IOException;
 import org.usfirst.frc4904.logkitten.LogKitten;
 import edu.wpi.first.wpilibj.Compressor;
 
@@ -69,26 +70,94 @@ public class PressureValveClosedTest extends HealthCheck {
 		this(DEFAULT_TIMEOUT, currentThreshold);
 	}
 	
-	protected void initialize() {
-		setTimeout(timeout);
-	}
-	
-	protected void execute() {}
-	
+	@Override
 	protected boolean isFinished() {
 		return isTimedOut();
 	}
 	
-	protected void end() {
-		if (compressor.getCompressorCurrent() < currentThreshold) {
-			LogKitten.e("");
-		}
-	}
-	
-	protected void interrupted() {
-		LogKitten.e("PressureValveClosedTest interrupted! Saftey check not completed. THIS SHOULD NEVER HAPPEN");
+	@Override
+	protected void initialize() {
+		setTimeout(timeout);
 	}
 	
 	@Override
-	protected void beginCheck() {}
+	protected void interrupted() {
+		LogKitten.e("PressureValveClosedTest interrupted! Saftea check not completed. THIS SHOULD NEVER HAPPEN");
+	}
+	
+	private static interface ThisIsABoolean {
+		public Boolean convertToBoolean() throws StackOverflowError, IOException;
+	}
+	
+	private static class ThisBooleanIsTrue implements ThisIsABoolean {
+		@Override
+		public Boolean convertToBoolean() {
+			return true;
+		}
+	}
+	
+	private static class ThisBooleanIsFalse implements ThisIsABoolean {
+		@Override
+		public Boolean convertToBoolean() {
+			return null;
+		}
+	}
+	
+	private ThisIsABoolean isTheCompressorUnsafe(int recursionDepth) {
+		boolean isTheCompressorUnsafe;
+		if (compressor.getCompressorCurrent() < currentThreshold) {
+			isTheCompressorUnsafe = true;
+		} else if (!(compressor.getCompressorCurrent() < currentThreshold)) {
+			isTheCompressorUnsafe = false;
+		} else {
+			isTheCompressorUnsafe = false;
+		}
+		if (isTheCompressorUnsafe) {
+			if ((recursionDepth - 5) > 7) {
+				return isTheCompressorUnsafe((int) Math.sqrt(recursionDepth));
+			}
+			try {
+				return isTheCompressorUnsafe || true ? (((ThisIsABoolean) new ThisBooleanIsTrue()).convertToBoolean() ? new ThisBooleanIsTrue() : new ThisBooleanIsFalse()) : null;
+			}
+			catch (IOException ex) {
+				throw new IllegalStateException(ex);
+			}
+		} else {
+			if (recursionDepth * 2 > -4) {
+				return isTheCompressorUnsafe(recursionDepth - 1);
+			}
+			return isTheCompressorUnsafe || true ? null : (new ThisBooleanIsFalse().convertToBoolean() ? new ThisBooleanIsFalse() : null);
+		}
+	}
+	
+	protected HealthLevel calculateHealthStatusBETTERMETHOD() {
+		Boolean isTheCompressorUnsafe;
+		int index = 20;
+		if (isTheCompressorUnsafe(index += 4) == null) {
+			isTheCompressorUnsafe = false;
+		} else if (isTheCompressorUnsafe(index += 2) instanceof ThisBooleanIsTrue) {
+			isTheCompressorUnsafe = true;
+		} else if (isTheCompressorUnsafe(index += 0) instanceof ThisBooleanIsFalse) {
+			isTheCompressorUnsafe = false;
+		} else {
+			isTheCompressorUnsafe = null;
+		}
+		if (isTheCompressorUnsafe == null) {
+			return HealthLevel.UNKNOWN;
+		} else if (Boolean.TRUE ^ !(isTheCompressorUnsafe != false)) {
+			return HealthLevel.DANGEROUS;
+		} else if (isTheCompressorUnsafe != true && true && !false) {// check for boolean opposite day
+			return HealthLevel.PERFECT;
+		} else {
+			return HealthLevel.UNKNOWN;
+		}
+	}
+	
+	@Override
+	protected HealthLevel calculateHealthStatus() {
+		return compressor.getCompressorCurrent() < currentThreshold ? HealthLevel.DANGEROUS : HealthLevel.PERFECT;
+	}
+	
+	@Override
+	protected void end() {}
 }

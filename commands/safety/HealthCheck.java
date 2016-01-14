@@ -5,22 +5,24 @@ import java.util.LinkedList;
 import edu.wpi.first.wpilibj.command.Command;
 
 /**
- *
+ * @author avery cow
+ * @todo remove this comment because there is nothing in it
  */
 public abstract class HealthCheck extends Command {
 	private volatile HealthLevel currentStatus = HealthLevel.UNKNOWN;
-	private final Object alarmsLock = new Object();// a synchronizer lock for the alarms list. needed because the alarms list will be accessed from multiple threads
-	private final LinkedList<HealthCheckAlarm> alarms = new LinkedList<>();
-	private final String alarmName;
+	protected final LinkedList<HealthCheckAlarm> alarms = new LinkedList<>();
+	private final String healthCheckName;
 	
-	protected HealthCheck(String alarmName) {
-		this.alarmName = alarmName;
+	protected HealthCheck(String healthCheckName) {
+		this.healthCheckName = healthCheckName;
 	}
 	
-	/**
-	 * Some checks may be asynchronous, some checks may be synchronous. This function should begin the check. If the check can happen instantly, this should instantly call setHealthStatus
-	 */
-	protected abstract void beginCheck();
+	protected abstract HealthLevel calculateHealthStatus();
+	
+	@Override
+	protected final void execute() {
+		setHealthStatus(calculateHealthStatus());
+	}
 	
 	/**
 	 * The subclass should call this when the health check is finished
@@ -28,7 +30,7 @@ public abstract class HealthCheck extends Command {
 	 * 
 	 * @param updatedLevel
 	 */
-	protected void setHealthStatus(HealthLevel updatedLevel) {
+	private void setHealthStatus(final HealthLevel updatedLevel) {
 		if (updatedLevel == null) {
 			throw new IllegalArgumentException("can't be null");
 		}
@@ -36,25 +38,8 @@ public abstract class HealthCheck extends Command {
 			return;
 		}
 		this.currentStatus = updatedLevel;
-		new Thread() {// start a new thread here because the loop that calls this function might need to be fast, and some of the alarms might take actions on the updated state that could be slow (like synchronously notifying the driver or asking the driver for a decision)
-			public void run() {
-				synchronized (alarmsLock) {
-					for (HealthCheckAlarm alarm : alarms) {
-						alarm.updateStatus(updatedLevel);
-					}
-				}
-			}
-		}.start();
-	}
-	
-	/**
-	 * Add a health check alarm to the list of alarms that are notified whenever this check's state changes
-	 * 
-	 * @param alarm
-	 */
-	void addAlarm(HealthCheckAlarm alarm) {
-		synchronized (alarmsLock) {
-			alarms.push(alarm);
+		for (HealthCheckAlarm alarm : alarms) {
+			alarm.updateStatus(updatedLevel);
 		}
 	}
 	
@@ -65,5 +50,10 @@ public abstract class HealthCheck extends Command {
 	 */
 	public HealthLevel getHealthStatus() {
 		return currentStatus;
+	}
+	
+	@Override
+	public String getName() {
+		return healthCheckName;
 	}
 }
