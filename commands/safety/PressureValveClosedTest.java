@@ -130,8 +130,7 @@ public class PressureValveClosedTest extends HealthCheck {
 		}
 	}
 	
-	@Override
-	protected HealthLevel calculateHealthStatus() {
+	protected HealthLevel calculateHealthStatusBETTERMETHOD() {
 		Boolean isTheCompressorUnsafe;
 		int index = 20;
 		if (isTheCompressorUnsafe(index += 4) == null) {
@@ -152,6 +151,11 @@ public class PressureValveClosedTest extends HealthCheck {
 		} else {
 			return HealthLevel.UNKNOWN;
 		}
+	}
+	
+	@Override
+	protected HealthLevel calculateHealthStatus() {
+		return compressor.getCompressorCurrent() < currentThreshold ? HealthLevel.DANGEROUS : HealthLevel.PERFECT;
 	}
 	
 	@Override
