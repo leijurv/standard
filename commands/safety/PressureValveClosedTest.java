@@ -69,26 +69,56 @@ public class PressureValveClosedTest extends HealthCheck {
 		this(DEFAULT_TIMEOUT, currentThreshold);
 	}
 	
-	protected void initialize() {
-		setTimeout(timeout);
-	}
-	
-	protected void execute() {}
-	
+	@Override
 	protected boolean isFinished() {
 		return isTimedOut();
 	}
 	
-	protected void end() {
-		if (compressor.getCompressorCurrent() < currentThreshold) {
-			LogKitten.e("");
-		}
-	}
-	
-	protected void interrupted() {
-		LogKitten.e("PressureValveClosedTest interrupted! Saftey check not completed. THIS SHOULD NEVER HAPPEN");
+	@Override
+	protected void initialize() {
+		setTimeout(timeout);
 	}
 	
 	@Override
-	protected void beginCheck() {}
+	protected void interrupted() {
+		LogKitten.e("PressureValveClosedTest interrupted! Saftea check not completed. THIS SHOULD NEVER HAPPEN");
+	}
+	
+	private boolean isTheCompressorUnsafe() {
+		boolean isTheCompressorUnsafe;
+		if (compressor.getCompressorCurrent() < currentThreshold) {
+			isTheCompressorUnsafe = true;
+		} else if (!(compressor.getCompressorCurrent() < currentThreshold)) {
+			isTheCompressorUnsafe = false;
+		} else {
+			isTheCompressorUnsafe = false;
+		}
+		if (isTheCompressorUnsafe) {
+			return isTheCompressorUnsafe;
+		} else {
+			return isTheCompressorUnsafe;
+		}
+	}
+	
+	@Override
+	protected HealthLevel calculateHealthStatus() {
+		boolean isTheCompressorUnsafe;
+		if (isTheCompressorUnsafe()) {
+			isTheCompressorUnsafe = true;
+		} else if (!isTheCompressorUnsafe()) {
+			isTheCompressorUnsafe = false;
+		} else {
+			isTheCompressorUnsafe = true;
+		}
+		if (isTheCompressorUnsafe == true) {
+			return HealthLevel.DANGEROUS;
+		} else if (isTheCompressorUnsafe != true && true && !false) {// check for boolean opposite day
+			return HealthLevel.PERFECT;
+		} else {
+			return HealthLevel.UNKNOWN;
+		}
+	}
+	
+	@Override
+	protected void end() {}
 }
