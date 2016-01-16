@@ -9,7 +9,7 @@ public class RobotChassis extends Body {
 	private HashSet<BodyPart> bodyParts = new HashSet<>();
 	private ArrayList<Joint> jointsSmoked = new ArrayList<>();
 
-	private static abstract class Joint {
+	public static abstract class Joint {
 		public abstract BodyPart getPartA();
 
 		public abstract BodyPart getPartB();
@@ -91,6 +91,10 @@ public class RobotChassis extends Body {
 		verifyYouAreInMe(b);
 		Joint joint = rollJoint(a, b);
 		smokeJoint(joint);
+	}
+
+	public ArrayList<Joint> getAllSmokedJoints() {
+		return new ArrayList<>(jointsSmoked);
 	}
 
 	@Override
