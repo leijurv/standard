@@ -6,4 +6,6 @@ public interface Body {
 	public void connectBodyParts(BodyPart a, BodyPart b);
 
 	public Collection<BodyPart> getConnectedParts(BodyPart a);
+
+	public Collection<BodyPart> getAllParts();
 }
