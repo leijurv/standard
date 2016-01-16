@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
-public class RobotChassis implements Body {
+public class RobotChassis extends Body {
 	private HashSet<BodyPart> bodyParts = new HashSet<>();
 	private ArrayList<Joint> jointsSmoked = new ArrayList<>();
 

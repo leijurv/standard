@@ -2,10 +2,14 @@ package org.usfirst.frc4904.standard.commands.safety;
 
 import java.util.Collection;
 
-public interface Body {
-	public void connectBodyParts(BodyPart a, BodyPart b);
+public abstract class Body {
+	public abstract void connectBodyParts(BodyPart a, BodyPart b);
 
-	public Collection<BodyPart> getConnectedParts(BodyPart a);
+	public abstract Collection<BodyPart> getConnectedParts(BodyPart a);
 
-	public Collection<BodyPart> getAllParts();
+	public abstract Collection<BodyPart> getAllParts();
+
+	public BodyPartsSong generateSong() {
+		return new BodyPartsSongGeneratorImpl().generateSong(this);
+	}
 }
