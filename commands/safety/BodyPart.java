@@ -24,4 +24,8 @@ public abstract class BodyPart implements Part {
 		}
 		return blazeit;
 	}
+
+	public Body getBody() {
+		return body;
+	}
 }
